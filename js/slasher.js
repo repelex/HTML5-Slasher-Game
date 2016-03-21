@@ -17,7 +17,6 @@ function checkForPointerLock() {
         'webkitPointerLockElement' in document;
 }
 
-
 init();
 animate();
 
