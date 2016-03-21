@@ -54,15 +54,21 @@ function init() {
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     document.body.appendChild( renderer.domElement );
+    window.addEventListener( 'resize', onWindowResize, false );
 
 }
 
 function animate() {
-
     requestAnimationFrame( animate );
     updateControls();
     renderer.render( scene, camera );
 
+}
+
+function onWindowResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize( window.innerWidth, window.innerHeight );
 }
 
 function updateControls() {
@@ -83,9 +89,9 @@ function updateControls() {
         controls.getObject().translateY(velocity.y * delta);
         controls.getObject().translateZ(velocity.z * delta);
 
-        if (controls.getObject().position.y < 10) {
+        if (controls.getObject().position.y < 25) {
             velocity.y = 0;
-            controls.getObject().position.y = 10;
+            controls.getObject().position.y = 25;
             canJump = true;
         }
     }
@@ -101,14 +107,20 @@ function initPointerLock() {
             if (document.pointerLockElement === element || document.mozPointerLockElement === element || document.webkitPointerLockElement === element) {
                 controlsEnabled = true;
                 controls.enabled = true;
+                blocker.style.display = 'none';
             } else {
                 controlsEnabled = false;
                 controls.enabled = false;
+                blocker.style.display = '-webkit-box';
+				blocker.style.display = '-moz-box';
+				blocker.style.display = 'box';
+				instructions.style.display = '';
             } 
         };
 
         var pointerlockerror = function (event) {
             element.innerHTML = 'PointerLock Error';
+            instructions.style.display = '';
         };
 
         document.addEventListener('pointerlockchange', pointerlockchange, false);
@@ -120,8 +132,23 @@ function initPointerLock() {
         document.addEventListener('webkitpointerlockerror', pointerlockerror, false);
 
         var requestPointerLock = function(event) {
+            instructions.style.display = 'none';
             element.requestPointerLock = element.requestPointerLock || element.mozRequestPointerLock || element.webkitRequestPointerLock;
-            element.requestPointerLock(); 
+            if ( /Firefox/i.test( navigator.userAgent ) ) {
+                var fullscreenchange = function ( event ) {
+                    if ( document.fullscreenElement === element || document.mozFullscreenElement === element || document.mozFullScreenElement === element ) {
+                        document.removeEventListener( 'fullscreenchange', fullscreenchange );
+                        document.removeEventListener( 'mozfullscreenchange', fullscreenchange );
+                        element.requestPointerLock();
+                    }
+                };
+                document.addEventListener( 'fullscreenchange', fullscreenchange, false );
+                document.addEventListener( 'mozfullscreenchange', fullscreenchange, false );
+                element.requestFullscreen = element.requestFullscreen || element.mozRequestFullscreen || element.mozRequestFullScreen || element.webkitRequestFullscreen;
+                element.requestFullscreen();
+            } else {
+                element.requestPointerLock();
+            }
         };
         element.addEventListener('click', requestPointerLock, false);
     } else {
