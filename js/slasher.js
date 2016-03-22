@@ -1,5 +1,5 @@
-var scene, camera, renderer, light, ambient, clock;
-var geometry, material, mesh;
+var scene, camera, renderer, light, ambient, clock, delta;
+var geometry, material, box;
 var floor;
 var cageWall = new Array();
 var controls, controlsEnabled;
@@ -37,8 +37,8 @@ function init() {
     //TODO: change this. creates box
     geometry = new THREE.BoxGeometry( 20, 20, 20 )
     material = new THREE.MeshPhongMaterial({ color: 0xcc0000, specular: 0xffcccc, shininess: 30, shading: THREE.FlatShading });
-    mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
+    box = new THREE.Mesh( geometry, material );
+    scene.add( box );
     
     //level builing
     //ground
@@ -88,9 +88,22 @@ function init() {
 
 function animate() {
     requestAnimationFrame( animate );
+    delta = clock.getDelta();
     updateControls();
+    moveEnemy(box);
     renderer.render( scene, camera );
 
+}
+
+function moveEnemy(enemy) {
+    var distX = controls.getObject().position.x - enemy.position.x;
+    var distZ = controls.getObject().position.z - enemy.position.z;
+    var dist = Math.sqrt(distX*distX + distZ*distZ);
+    if (dist > 30){
+        enemy.position.x += distX*.4*delta;
+        enemy.position.z += distZ*.4*delta;
+    }
+    enemy.lookAt(new THREE.Vector3(controls.getObject().position.x, 0, controls.getObject().position.z));
 }
 
 function onWindowResize() {
@@ -101,7 +114,6 @@ function onWindowResize() {
 
 function updateControls() {
     if (controlsEnabled) {
-        var delta = clock.getDelta();
         var walkingSpeed = 600.0;
 
         velocity.x -= velocity.x * 10.0 * delta;
