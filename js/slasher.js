@@ -1,6 +1,7 @@
 var scene, camera, renderer, light, ambient, clock;
 var geometry, material, mesh;
 var floor;
+var cageWall = new Array();
 var controls, controlsEnabled;
 var moveForward,
     moveBackward,
@@ -40,9 +41,32 @@ function init() {
     scene.add( mesh );
     
     //level builing
+    //ground
     floor = new THREE.Mesh(new THREE.BoxGeometry(1000, 1, 1000), new THREE.MeshPhongMaterial({ color: 0x009933, specular: 0xccffdd, shininess: 10, shading: THREE.FlatShading }));
     floor.position.y = -10;
     scene.add(floor);
+    //cage
+    for (i = 0; i < 50; i+=2) {
+        cageWall.push(new THREE.Mesh(new THREE.BoxGeometry(5, 500, 5), new THREE.MeshPhongMaterial({ color: 0xb0c4de, specular: 0xcae1ff, shininess: 10, shading: THREE.FlatShading })));
+        cageWall[i].position.x = i*10-250;
+        cageWall[i].position.z = 250;
+        scene.add(cageWall[i]);  
+        cageWall.push(new THREE.Mesh(new THREE.BoxGeometry(5, 500, 5), new THREE.MeshPhongMaterial({ color: 0xb0c4de, specular: 0xcae1ff, shininess: 10, shading: THREE.FlatShading })));
+        cageWall[i+1].position.x = i*10-250;
+        cageWall[i+1].position.z = -250;
+        scene.add(cageWall[i+1]);  
+    }
+    for (i = 0; i <= 50; i+=2) {
+        cageWall.push(new THREE.Mesh(new THREE.BoxGeometry(5, 500, 5), new THREE.MeshPhongMaterial({ color: 0xb0c4de, specular: 0xcae1ff, shininess: 10, shading: THREE.FlatShading })));
+        cageWall[i+50].position.z = i*10-250;
+        cageWall[i+50].position.x = 250;
+        scene.add(cageWall[i+50]);  
+        cageWall.push(new THREE.Mesh(new THREE.BoxGeometry(5, 500, 5), new THREE.MeshPhongMaterial({ color: 0xb0c4de, specular: 0xcae1ff, shininess: 10, shading: THREE.FlatShading })));
+        cageWall[i+51].position.z = i*10-250;
+        cageWall[i+51].position.x = -250;
+        scene.add(cageWall[i+51]);  
+    }
+
     
     //lighting
     ambient = new THREE.AmbientLight( 0x666666 ); // soft white light
@@ -78,7 +102,7 @@ function onWindowResize() {
 function updateControls() {
     if (controlsEnabled) {
         var delta = clock.getDelta();
-        var walkingSpeed = 300.0;
+        var walkingSpeed = 600.0;
 
         velocity.x -= velocity.x * 10.0 * delta;
         velocity.z -= velocity.z * 10.0 * delta;
@@ -98,6 +122,23 @@ function updateControls() {
             controls.getObject().position.y = 25;
             canJump = true;
         }
+        if (controls.getObject().position.x < -245) {
+            velocity.x = 0;
+            controls.getObject().position.x = -245;
+        }
+        if (controls.getObject().position.x > 245) {
+            velocity.x = 0;
+            controls.getObject().position.x = 245;
+        }
+        if (controls.getObject().position.z < -245) {
+            velocity.z = 0;
+            controls.getObject().position.z = -245;
+        }
+        if (controls.getObject().position.z > 245) {
+            velocity.z = 0;
+            controls.getObject().position.z = 245;
+        }
+        
     }
 }
 
