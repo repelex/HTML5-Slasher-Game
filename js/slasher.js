@@ -21,38 +21,43 @@ init();
 animate();
 
 function init() {
+    //initilization
     initPointerLock();
     initControls();
     
-    scene = new THREE.Scene();
+	scene = new THREE.Scene();
     clock = new THREE.Clock(true);
-    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
     
+    //camera and camera control
+    camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
     controls = new THREE.PointerLockControls(camera);
     scene.add(controls.getObject());
     
-
+    //TODO: change this. creates box
     geometry = new THREE.BoxGeometry( 20, 20, 20 )
     material = new THREE.MeshPhongMaterial({ color: 0xcc0000, specular: 0xffcccc, shininess: 30, shading: THREE.FlatShading });
+    mesh = new THREE.Mesh( geometry, material );
+    scene.add( mesh );
     
+    //level builing
     floor = new THREE.Mesh(new THREE.BoxGeometry(1000, 1, 1000), new THREE.MeshPhongMaterial({ color: 0x009933, specular: 0xccffdd, shininess: 10, shading: THREE.FlatShading }));
     floor.position.y = -10;
     scene.add(floor);
     
-    mesh = new THREE.Mesh( geometry, material );
-    scene.add( mesh );
-    
+    //lighting
     ambient = new THREE.AmbientLight( 0x666666 ); // soft white light
     scene.add( ambient );
     
     light = new THREE.PointLight( 0xffffff, 1, 500 ); 
     light.position.set(0, 300, 0);
     scene.add( light );
-
+    
+    //rendered
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
-
     document.body.appendChild( renderer.domElement );
+    
+    
     window.addEventListener( 'resize', onWindowResize, false );
 
 }
