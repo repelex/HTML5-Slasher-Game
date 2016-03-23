@@ -103,7 +103,7 @@ function moveEnemy(enemy) {
         enemy.position.x += distX*.4*delta;
         enemy.position.z += distZ*.4*delta;
     }
-    enemy.lookAt(new THREE.Vector3(controls.getObject().position.x, 0, controls.getObject().position.z));
+    enemy.lookAt(new THREE.Vector3(controls.getObject().position.x, enemy.y, controls.getObject().position.z));
 }
 
 function onWindowResize() {
