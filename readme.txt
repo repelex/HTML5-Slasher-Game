@@ -27,12 +27,14 @@ score is saved between sessions. Beat your friends!
 ****NOTES****
 Game is made using Three.js. Three.js acts as a buffer 
 between WebGL and allows simple 3D design. Local 
-storage is also used to track high scores.
+storage is also used to track high scores. Use of 
+PointerLock was also implemented in order to control the
+camera properly.
 
 Testing was done with Mozilla Firefox and coding was 
 with Sublime Text 3. Performance should be fine on any 
-modern browser, as the number of objects rendered at
-any time is fairly low. 
+modern browser, as the number of objects rendered at any
+given time is fairly low. 
 
 Future additions may be different enemy type, weapons,
 power-ups, etc.
