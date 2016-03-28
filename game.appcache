@@ -1,0 +1,9 @@
+CACHE MANIFEST
+#2016-03-28 v1
+
+CACHE:
+index.html
+style.css
+js/slasher.js
+js/lib/three.min.js
+js/lib/PointerLockControls.js
