@@ -1,63 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-	<title>Slasher - A Game by Alex Repec</title>
+	<title>Shooter - A Game by Alex Repec</title>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<style>
-		html, body {
-			width: 100%;
-			height: 100%;
-		}
-		body {
-			background-color: #ffffff;
-			margin: 0;
-			overflow: hidden;
-			font-family: arial;
-		}
-		#blocker {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0,0,0,0.5);
-		}
-		#instructions {
-			width: 100%;
-			height: 100%;
-			display: -webkit-box;
-			display: -moz-box;
-			display: box;
-			-webkit-box-orient: horizontal;
-			-moz-box-orient: horizontal;
-			box-orient: horizontal;
-			-webkit-box-pack: center;
-			-moz-box-pack: center;
-			box-pack: center;
-			-webkit-box-align: center;
-			-moz-box-align: center;
-			box-align: center;
-			color: #ffffff;
-			text-align: center;
-			cursor: pointer;
-		}
-		#hud {
-			position: absolute;
-			width: 100%;
-			height: 100%;
-			background-color: rgba(0,0,0,0);
-		}
-		#HPBar {
-			background-color: forestgreen;
-			position: relative;
-			left: 50px;
-			top: 5%;
-			width: 40%;
-			height: 5%;              
-		}
-		
-		
-	</style>
-	
+	<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
 	<div id="blocker">
@@ -68,16 +15,14 @@
 		</div>
 	</div>
 	<div id="hud">
+		<div id="HPBG"></div>
 		<div id="HPBar"></div>
+		<div id="crosshair"></div>
+		<div id="kills"></div>
+		<div id="killscreen"></div>
 	</div>
-	
-	
-
 	<script src="js/lib/three.min.js"></script>
 	<script src="js/lib/PointerLockControls.js"></script>
 	<script src="js/slasher.js"></script>
-	
-	
-
 </body>
 </html>

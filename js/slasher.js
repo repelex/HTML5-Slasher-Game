@@ -3,14 +3,18 @@ var geometry, material, box;
 var floor, mat;
 var cageWall = new Array();
 var controls, controlsEnabled;
-var moveForward,
-moveBackward,
-moveLeft,
-moveRight,
-canJump;
+var moveForward, moveBackward, moveLeft, moveRight, canJump, ray;
 var velocity = new THREE.Vector3();
-
+var playerHP = 200;
+var enemyAttackClock, lastAttack = 0;
+var badGuy, enemySpeed = 0.4;
 var havePointerLock = checkForPointerLock();
+var XAXIS = new THREE.Vector3(1,0,0);
+var YAXIS = new THREE.Vector3(0,1,0);
+var deathScale = 1;
+var kills = 0;
+
+var raycaster = new THREE.Raycaster();
 
 function checkForPointerLock() {
 	return 'pointerLockElement' in document || 
@@ -21,6 +25,15 @@ function checkForPointerLock() {
 init();
 animate();
 
+function Enemy(toughness) {
+	this.alive = true;
+	this.hp = toughness;
+	var geometry = new THREE.BoxGeometry( 20, 20, 20 );
+	var material = new THREE.MeshPhongMaterial({ color: 0xcc0000, specular: 0xffcccc, shininess: 30, shading: THREE.FlatShading });
+	this.mesh = new THREE.Mesh( geometry, material );
+	this.mesh.position.y = 10;
+}
+
 function init() {
     //initilization
     initPointerLock();
@@ -28,18 +41,21 @@ function init() {
 
     scene = new THREE.Scene();
     clock = new THREE.Clock(true);
+    enemyAttackClock = new THREE.Clock(true);
     
+
+
     //camera and camera control
     camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 1000 );
     controls = new THREE.PointerLockControls(camera);
+    controls.getObject().position.x = 200;
+    controls.getObject().position.z = 200;
     scene.add(controls.getObject());
-    
-    //TODO: change this. creates box
-    geometry = new THREE.BoxGeometry( 20, 20, 20 );
-    material = new THREE.MeshPhongMaterial({ color: 0xcc0000, specular: 0xffcccc, shininess: 30, shading: THREE.FlatShading });
-    box = new THREE.Mesh( geometry, material );
-    box.position.y = 10;
-    scene.add( box );
+
+    badGuy = new Enemy(3);
+    badGuy.mesh.position.x = -200;
+    badGuy.mesh.position.z = -200;
+    scene.add(badGuy.mesh);
     
     //level builing
     //ground
@@ -84,7 +100,7 @@ function init() {
     renderer = new THREE.WebGLRenderer();
     renderer.setSize( window.innerWidth, window.innerHeight );
     document.body.appendChild( renderer.domElement );
-    
+    document.getElementById('kills').innerHTML = "Kills: 0";
     
     window.addEventListener( 'resize', onWindowResize, false );
 
@@ -94,20 +110,77 @@ function animate() {
 	requestAnimationFrame( animate );
 	delta = clock.getDelta();
 	updateControls();
-	moveEnemy(box);
+	moveEnemy(badGuy);
 	renderer.render( scene, camera );
 
 }
 
 function moveEnemy(enemy) {
-	var distX = controls.getObject().position.x - enemy.position.x;
-	var distZ = controls.getObject().position.z - enemy.position.z;
+	var distX = controls.getObject().position.x - enemy.mesh.position.x;
+	var distZ = controls.getObject().position.z - enemy.mesh.position.z;
 	var dist = Math.sqrt(distX*distX + distZ*distZ);
-	if (dist > 30){
-		enemy.position.x += distX*.4*delta;
-		enemy.position.z += distZ*.4*delta;
+	if (controlsEnabled){
+		lastAttack  += enemyAttackClock.getDelta();
+		if (enemy.alive){
+			if (dist > 10) {
+				enemy.mesh.position.x += distX*enemySpeed*delta;
+				enemy.mesh.position.z += distZ*enemySpeed*delta;
+			} 
+			if (dist < 40) {
+				if (lastAttack > 1) {
+					playerHP -= 20;
+					document.getElementById('HPBar').style.width = playerHP + 'px';
+					lastAttack = 0;
+					if (playerHP <= 0) {
+						gameOver();
+					}
+				}
+			}
+			enemy.mesh.lookAt(new THREE.Vector3(controls.getObject().position.x, enemy.mesh.position.y, controls.getObject().position.z));
+		} else {
+			deathScale -= 0.02
+			enemy.mesh.rotateOnAxis(YAXIS, 0.05);
+			enemy.mesh.scale.set(deathScale, deathScale, deathScale);
+			if (deathScale <= 0.05) {
+				scene.remove(enemy.mesh);
+				createEnemy();
+				deathScale = 1;
+				kills +=1;
+				document.getElementById('kills').innerHTML = "Kills: " + kills;
+			}
+			
+		}
 	}
-	enemy.lookAt(new THREE.Vector3(controls.getObject().position.x, enemy.position.y, controls.getObject().position.z));
+}
+
+function gameOver(){
+	if (kills >  localStorage.getItem("highscore")){
+    	localStorage.setItem("highscore", kills);
+	}
+	controlsEnabled = false;
+	controls.Enabled = false;
+	document.getElementById('killscreen').style.display = 'box';
+	document.getElementById('killscreen').style.display = '-webkit-box';
+	document.getElementById('killscreen').style.display = '-moz-box';
+	document.getElementById('killscreen').innerHTML = "Number of kills: " + kills + ". Highscore: " + localStorage.getItem("highscore");
+
+}
+
+function createEnemy(){
+	badGuy = new Enemy(3);
+	var badSpawn = true;
+	while (badSpawn) {
+		badGuy.mesh.position.x = Math.floor((Math.random() * 500) -240);
+		badGuy.mesh.position.z = Math.floor((Math.random() * 500) -240);
+		var distX = controls.getObject().position.x - badGuy.mesh.position.x;
+		var distZ = controls.getObject().position.z - badGuy.mesh.position.z;
+		var dist = Math.sqrt(distX*distX + distZ*distZ);
+		if (dist > 50) {
+			badSpawn = false;
+		}
+	}
+	enemySpeed += 0.05;
+	scene.add(badGuy.mesh);
 }
 
 function onWindowResize() {
@@ -117,6 +190,10 @@ function onWindowResize() {
 }
 
 function updateControls() {
+	var dir = controls.getDirection();
+	dir.normalize();
+	raycaster.set(controls.getObject().position, dir);
+
 	if (controlsEnabled) {
 		var walkingSpeed = 600.0;
 
@@ -220,6 +297,7 @@ function initPointerLock() {
 function initControls() {
 	document.addEventListener('keydown', onKeyDown, false);
 	document.addEventListener('keyup', onKeyUp, false);
+	document.addEventListener('click', onClick, false);
 }
 
 function onKeyDown(e) {
@@ -266,4 +344,18 @@ function onKeyUp(e) {
         moveRight = false;
         break;
     }
+}
+
+function onClick(e) {
+	if (raycaster.intersectObject(badGuy.mesh, true).length > 0) {
+		console.log("hit");
+		handleShot(badGuy);
+	}	
+}
+
+function handleShot(enemy){
+	badGuy.hp -= 1;
+	if (badGuy.hp == 0) {
+		badGuy.alive = false;
+	}
 }

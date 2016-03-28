@@ -39,11 +39,61 @@ html, body {
 			height: 100%;
 			background-color: rgba(0,0,0,0);
 		}
-		#HPBar {
-			background-color: forestgreen;
-			position: relative;
+		#killscreen {
+			position: absolute;
+			top: 0%;
+			width: 100%;
+			height: 100%;
+			background-color: rgba(1,0,0,1);
+			display: none;
+			font-family: "Lucida Console", Times, serif;
+			font-size: 20px;
+			color: white;
+		}
+		#HPBG {
+			background-color: red;
+			outline-color: black;
+			position: absolute;
 			left: 50px;
 			top: 5%;
-			width: 40%;
+			width: 200px;
 			height: 5%;              
+		}
+		#HPBar {
+			background-color: forestgreen;
+			outline-color: black;
+			position: absolute;
+			left: 50px;
+			top: 5%;
+			width: 200px;
+			height: 5%;              
+		}
+		#crosshair {
+			background-color: white;
+			position: relative;
+			border-radius: 10px;
+			left: 50%;
+			top: 50%;
+			width: 5px;
+			height: 5px;
+		}
+		#kills {
+			font-family: "Lucida Console", Times, serif;
+			font-size: 20px;
+			position: relative;
+			color: white;
+			text-shadow:
+			-1px -1px 0 #000,
+			1px -1px 0 #000,
+			-1px 1px 0 #000,
+			1px 1px 0 #000;
+			left: 90%;
+			top: 1%;
+			-moz-user-select: -moz-none;
+			-khtml-user-select: none;
+			-webkit-user-select: none;
+
+
+			-ms-user-select: none;
+			user-select: none;
 		}
